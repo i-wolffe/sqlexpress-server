@@ -1,18 +1,25 @@
-import express from "express";
-import mysql from "mysql2";
-import cors from "cors";
-import http from "http";
+const express =  require("express");
+const mysql =  require("mysql2");
+const cors =  require("cors");
+const http =  require("http");
+require('dotenv').config();
 
 const app = express();
 
 const { DB_IP,DB_USER,DB_KEY,DB_NAME,DB_TABLE } = process.env;
 
-const db = mysql.createConnection({
-  host: DB_IP,
-  user: DB_USER,
-  password: DB_KEY,
-  database: DB_NAME,
-});
+try {
+  const db = mysql.createConnection({
+    host: DB_IP,
+    user: DB_USER,
+    password: DB_KEY,
+    database: DB_NAME,
+  })  
+  console.log('Connected to DB')
+} catch (error) {
+  console.error('No Connection to DB: ',error)
+  console.error(DB_IP,DB_USER,DB_KEY,DB_NAME)
+}
 
 app.use(express.json());
 app.use(cors());
