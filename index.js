@@ -8,22 +8,20 @@ const app = express();
 
 const { DB_IP,DB_USER,DB_KEY,DB_NAME,DB_TABLE } = process.env;
 
-try {
-  const db = mysql.createConnection({
-    host: DB_IP,
-    user: DB_USER,
-    password: DB_KEY,
-    database: DB_NAME,
-  })  
-  console.log('Connected to DB')
-} catch (error) {
-  console.error('No Connection to DB: ',error)
-  console.error(DB_IP,DB_USER,DB_KEY,DB_NAME)
+const db = mysql.createConnection({
+  host: DB_IP,
+  user: DB_USER,
+  password: DB_KEY,
+  database: DB_NAME,
+})  
+console.log('Connected to DB')
+
+let hashSring = (str) => {
+  return str
 }
 
 app.use(express.json());
 app.use(cors());
-
 
 app.get("/", (req, res) => {
   res.json("backend response from /");
@@ -31,25 +29,9 @@ app.get("/", (req, res) => {
 
 app.get("/badgeCicloSemana", (req, res) => {
   // console.log('-------',req.query)
-  let date = new Date();
-  let queryDate = `${date.getFullYear()}-${monthFormat(
-    date.getMonth()
-  )}-${date.getDate()}`;
-  let dateRanges = getDateRange(date, "week");
   let query =
     `SELECT idCiclo as ID, idAutoclave, Fecha, Turno, Hora, TiempoCicloA ` +
-    `FROM ciclos ` +
-    `WHERE TiempoCicloA = (SELECT ${
-      req.query.minmax == "min" ? `MIN` : `MAX`
-    }(TiempoCicloA) FROM ciclos WHERE ${
-      req.query.shift == 0 ? `` : `Turno = ${req.query.shift} AND`
-    } ` +
-    `idAutoclave = ${req.query.id} ` +
-    `AND Fecha BETWEEN '${dateRanges.lower}' AND '${dateRanges.upper}') ` +
-    `AND idAutoclave = ${req.query.id} AND ` +
-    `${
-      req.query.shift == 0 ? `` : `Turno = ${req.query.shift} AND`
-    } Fecha BETWEEN '${dateRanges.lower}' AND '${dateRanges.upper}' `;
+    `FROM ciclos `;
   //console.warn(query)
   db.query(query, (error, data) => {
     if (error) {
@@ -60,21 +42,27 @@ app.get("/badgeCicloSemana", (req, res) => {
   });
 });
 
-app.post("/celdas", (req, res) => {
+app.post("/login", (req, res) => {
+  // hash password
   const query =
-    "INSERT INTO Celdas (Nombre,Area,SubArea,ZonaLayout,IsActive)VALUES (?)";
+    `SELECT * FROM Auth WHERE userMail LIKE '${req.body.email}'`;
   // Test values from the backend
-  const valuesBE = ["LT6", "LT6", "GM", 1, false];
-  const valuesCL = [
-    req.body.name,
-    req.body.area,
-    req.body.subarea,
-    req.body.layout,
-    req.body.isActive,
-  ];
-  db.query(query, [valuesCL], (error, data) => {
+  console.log(req.body)
+  db.query(query, (error, data) => {
+    console.log('--',data)
     if (error) return res.json(error);
     return res.json(data);
+  });
+});
+
+app.post("/register", (req, res) => {
+  const query =
+    "INSERT INTO * FROM Auth";
+  // Test values from the backend
+  console.log(req.body)
+  db.query(query, (error, data) => {
+    if (error) {return res.json(error)};
+    return  res.json(data);
   });
 });
 
