@@ -43,7 +43,7 @@ app.get("/", (req, res) => {
 app.post("/login", (req, res) => {
   // hash password
   const query =
-    `SELECT userName as name, userMail as email, userAccess as access FROM Auth WHERE userMail LIKE '${req.body[0].email}' `+
+    `SELECT userName as name, userAccess as access FROM Auth WHERE userMail LIKE '${req.body[0].email}' `+
     `AND userAccess LIKE '${hashStr(req.body[0].role)}' `+
     `AND userPassword LIKE '${hashStr(req.body[0].password)}'`;
   console.log(req.body)
