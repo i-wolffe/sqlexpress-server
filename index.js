@@ -1,5 +1,6 @@
-const express =  require("express");
 const mysql =  require("mysql2");
+const jwt =  require("jsonwebtoken");
+const express =  require("express");
 const cors =  require("cors");
 const crypto = require("crypto")
 const http =  require("http");
@@ -8,6 +9,7 @@ require('dotenv').config();
 const app = express();
 
 const { DB_IP,DB_USER,DB_KEY,DB_NAME,DB_TABLE } = process.env;
+const { TOKEN_KEY } = process.env;
 
 const db = mysql.createConnection({
   host: DB_IP,
@@ -25,11 +27,16 @@ let hashStr = (str) => {
   return hash
 }
 
+let generateToken = (payload,secret) => {
+  const token = jwt.sign(payload,`${TOKEN_KEY}80${secret}`)
+  return token
+}
+
 app.use(express.json());
 app.use(cors());
 
 app.get("/", (req, res) => {
-  res.json("backend response from /");
+  res.json("Pinging backend @ ::",port);
 });
 
 
@@ -47,8 +54,9 @@ app.post("/login", (req, res) => {
       console.warn('return error')
       return res.json({error: 404})
     } else {
-      token = '221912921921921921'
+      token = generateToken(data[0],data[0].access)
       data[0]['token'] = token
+      // TODO: Add list of privileges? or add keyword to securely get permissionss
     }
     // If it exists, append a Token
     if (error) return res.json(error);
