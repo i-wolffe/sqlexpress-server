@@ -70,6 +70,8 @@ app.get("/", (req, res) => {
 });
 
 app.options("/login", (req,res) => {
+  console.log("ENTER OPTIONS REQUEST!!!")
+  console.log(req)
   res.status(200)
   return res
 })
