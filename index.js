@@ -64,17 +64,16 @@ let generateToken = (payload,secret) => {
 
 app.use(express.json());
 app.use(cors());
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 
 app.get("/", (req, res) => {
   res.json("Pinging backend @ ::",port);
 });
 
-app.options("/login", (req,res) => {
-  console.log("ENTER OPTIONS REQUEST!!!")
-  console.log(req)
-  res.status(200)
-  return res
-})
 app.post("/login", (req, res) => {
   // hash password
   const query =
