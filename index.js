@@ -76,10 +76,11 @@ app.get("/", (req, res) => {
 
 app.post("/login", (req, res) => {
   // hash password
+  console.log(req.body.data)
   const query =
-    `SELECT userName as name, userAccess as access FROM Auth WHERE userMail LIKE '${req.body[0].email}' `+
-    `AND userAccess LIKE '${hashStr(req.body[0].role)}' `+
-    `AND userPassword LIKE '${hashStr(req.body[0].password)}'`;
+    `SELECT userName as name, userAccess as access FROM Auth WHERE userMail LIKE '${req.body.data.email}' `+
+    `AND userAccess LIKE '${hashStr(req.body.data.role)}' `+
+    `AND userPassword LIKE '${hashStr(req.body.data.password)}'`;
   console.log(req.body)
   db.query(query, (error, data) => {
     let token
@@ -92,7 +93,7 @@ app.post("/login", (req, res) => {
       token = generateToken(data[0],data[0].access)
       data[0]['token'] = token
       // TODO: Add list of privileges? or add keyword to securely get permissionss
-      permissions = assignPermissions(req.body[0].role)
+      permissions = assignPermissions(req.body.data.role)
       data[0]['permissions'] = permissions
     }
     // If it exists, append a Token
@@ -104,14 +105,14 @@ app.post("/login", (req, res) => {
 app.post("/register", (req, res) => {
   // Generate an AccessLevelToken
   // console.log(req.body[0].role)
-  const role = hashStr(req.body[0].role)
+  const role = hashStr(req.body.data.role)
   // Hash the password
-  const password = hashStr(req.body[0].password)
+  const password = hashStr(req.body.data.password)
   // 
   const query =
     `INSERT INTO ${DB_TABLE} (userName, userMail, userAccess, userPassword, isActive) VALUES `+
-    `('${req.body[0].name} ${req.body[0].lastname}'`+
-    `,'${req.body[0].email}','${role}','${password}',true) AS myData `+
+    `('${req.body.data.name} ${req.body.data.lastname}'`+
+    `,'${req.body.data.email}','${role}','${password}',true) AS myData `+
     `ON DUPLICATE KEY UPDATE userPassword = myData.userPassword`;
   // Test values from the backend
   db.query(query, (error, data) => {
