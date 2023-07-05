@@ -19,7 +19,37 @@ const db = mysql.createConnection({
 })  
 console.log('Connected to DB')
 
-
+const roles = {
+  developerez:[
+    'element.add',
+    'element.read',
+    'element.delete',
+    'element.update',
+    'element.chart',
+    'element.plot',
+    'element.metrics',
+  ],
+  admin:[
+    'element.read',
+    'element.chart',
+    'element.plot',
+    'element.metrics',
+  ],
+  auto:[
+    'element.read',
+    'element.update',
+    'element.chart',
+  ],
+  proc:[
+    'element.read',
+    'element.plot',
+  ],
+}
+let assignPermissions = (role) => {
+  let permissionList = roles[role]
+  console.log(permissionList)
+  return permissionList || []
+}
 
 let hashStr = (str) => {
   hash = crypto.createHash('sha3-256').update(str).digest('hex');
@@ -49,6 +79,7 @@ app.post("/login", (req, res) => {
   console.log(req.body)
   db.query(query, (error, data) => {
     let token
+    let permissions
     console.log('--',data)
     if (data.length == 0) {
       console.warn('return error')
@@ -57,6 +88,8 @@ app.post("/login", (req, res) => {
       token = generateToken(data[0],data[0].access)
       data[0]['token'] = token
       // TODO: Add list of privileges? or add keyword to securely get permissionss
+      permissions = assignPermissions(req.body[0].role)
+      data[0]['permissions'] = permissions
     }
     // If it exists, append a Token
     if (error) return res.json(error);
