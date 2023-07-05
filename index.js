@@ -69,7 +69,10 @@ app.get("/", (req, res) => {
   res.json("Pinging backend @ ::",port);
 });
 
-
+app.options("/login", (req,res) => {
+  res.status(200)
+  return res
+})
 app.post("/login", (req, res) => {
   // hash password
   const query =
