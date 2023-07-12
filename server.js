@@ -57,7 +57,8 @@ let hashStr = (str) => {
   return hash
 }
 
-let generateToken = (payload,secret) => {
+let generateToken = (payload,secret,role) => {
+  payload['role'] = role
   const token = jwt.sign(payload,`${TOKEN_KEY}80${secret}`)
   return token
 }
@@ -71,6 +72,21 @@ app.use(cors());
 // });
 
 app.get("/", (req, res) => {
+  res.json("Pinging backend @ ::",port);
+});
+app.get("/get/autoclaves/", (req, res) => {
+  const query = "SELECT idAutoclave as id, Numero as name, IsActive FROM autoclaves"
+  db.query(query, (error,data) => {
+    if (error) return res.json(error);
+    return res.json(data);
+  })
+});
+app.post("/edit/autoclave/", (req, res) => {
+  // Validate credentials
+  // verify method
+  // do method
+  //INSERT INTO
+  // DELETE FROM
   res.json("Pinging backend @ ::",port);
 });
 
@@ -90,7 +106,7 @@ app.post("/login", (req, res) => {
       console.warn('return error')
       return res.json({error: 404})
     } else {
-      token = generateToken(data[0],data[0].access)
+      token = generateToken(data[0],data[0].access,req.body.data.role)
       data[0]['token'] = token
       // TODO: Add list of privileges? or add keyword to securely get permissionss
       permissions = assignPermissions(req.body.data.role)
